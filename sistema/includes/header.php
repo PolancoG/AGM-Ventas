@@ -13,6 +13,13 @@ $emailEmpresa = '';
 $telEmpresa = '';
 $dirEmpresa = '';
 
+//$sql = ("SELECT SUM(totalfactura) AS total FROM factura WHERE fecha = CAST(NOW() AS DATETIME);");
+$sql = "SELECT SUM(totalfactura) AS total FROM factura";
+$resultado = $conexion->query($sql);  
+$row = $resultado->fetch_object();
+$totalventas = $row->total;
+//
+
 $query_empresa = mysqli_query($conexion, "SELECT * FROM configuracion");
 $row_empresa = mysqli_num_rows($query_empresa);
 if ($row_empresa > 0) {
@@ -76,7 +83,7 @@ if ($result_data > 0) {
 			<div class="container-fluid d-flex align-items-center justify-content-between">
 				<div class="navbar-header">
 					<!-- Navbar Header--><a href="index.php" class="navbar-brand">
-						<div class="brand-text brand-big visible text-uppercase"><strong class="text-primary">AGM</strong> <strong>Ventas</strong></div>
+						<div class="brand-text brand-big visible text-uppercase"><strong class="text-primary">AGM</strong><strong>Ventas</strong></div>
 						<div class="brand-text brand-sm"><strong class="text-primary">A</strong><strong>V</strong></div>
 					</a>
 					<!-- Sidebar Toggle Btn-->

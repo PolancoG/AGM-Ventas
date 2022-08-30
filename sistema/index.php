@@ -75,8 +75,9 @@
 				<div class="card-body">
 					<div class="row no-gutters align-items-center">
 						<div class="col mr-2">
-							<div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Ventas</div>
-							<div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $data['ventas']; ?></div>
+							<div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Ventas de hoy</div>
+							<div class="h5 mb-0 font-weight-bold text-gray-800 mb-1"><?php echo $data['ventas']; ?></div>
+							<div class="text-xs font-weight-bold text-info">Total $<strong class="text-danger"><?php echo $totalventas; ?></strong></div>
 						</div>
 						<div class="col-auto">
 							<i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
