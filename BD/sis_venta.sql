@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.0.2
+-- version 5.1.1
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 09-03-2021 a las 10:49:05
--- Versión del servidor: 10.4.14-MariaDB
--- Versión de PHP: 7.4.9
+-- Tiempo de generación: 30-08-2022 a las 02:16:43
+-- Versión del servidor: 10.4.21-MariaDB
+-- Versión de PHP: 8.0.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -25,7 +25,7 @@ DELIMITER $$
 --
 -- Procedimientos
 --
-CREATE  PROCEDURE `actualizar_precio_producto` (IN `n_cantidad` INT, IN `n_precio` DECIMAL(10,2), IN `codigo` INT)  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `actualizar_precio_producto` (IN `n_cantidad` INT, IN `n_precio` DECIMAL(10,2), IN `codigo` INT)  BEGIN
 DECLARE nueva_existencia int;
 DECLARE nuevo_total decimal(10,2);
 DECLARE nuevo_precio decimal(10,2);
@@ -47,14 +47,14 @@ UPDATE producto SET existencia = nueva_existencia, precio = nuevo_precio WHERE c
 SELECT nueva_existencia, nuevo_precio;
 END$$
 
-CREATE  PROCEDURE `add_detalle_temp` (`codigo` INT, `cantidad` INT, `token_user` VARCHAR(50))  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `add_detalle_temp` (`codigo` INT, `cantidad` INT, `token_user` VARCHAR(50))  BEGIN
 DECLARE precio_actual decimal(10,2);
 SELECT precio INTO precio_actual FROM producto WHERE codproducto = codigo;
 INSERT INTO detalle_temp(token_user, codproducto, cantidad, precio_venta) VALUES (token_user, codigo, cantidad, precio_actual);
 SELECT tmp.correlativo, tmp.codproducto, p.descripcion, tmp.cantidad, tmp.precio_venta FROM detalle_temp tmp INNER JOIN producto p ON tmp.codproducto = p.codproducto WHERE tmp.token_user = token_user;
 END$$
 
-CREATE  PROCEDURE `data` ()  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `data` ()  BEGIN
 DECLARE usuarios int;
 DECLARE clientes int;
 DECLARE proveedores int;
@@ -70,12 +70,12 @@ SELECT usuarios, clientes, proveedores, productos, ventas;
 
 END$$
 
-CREATE  PROCEDURE `del_detalle_temp` (`id_detalle` INT, `token` VARCHAR(50))  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `del_detalle_temp` (`id_detalle` INT, `token` VARCHAR(50))  BEGIN
 DELETE FROM detalle_temp WHERE correlativo = id_detalle;
 SELECT tmp.correlativo, tmp.codproducto, p.descripcion, tmp.cantidad, tmp.precio_venta FROM detalle_temp tmp INNER JOIN producto p ON tmp.codproducto = p.codproducto WHERE tmp.token_user = token;
 END$$
 
-CREATE  PROCEDURE `procesar_venta` (IN `cod_usuario` INT, IN `cod_cliente` INT, IN `token` VARCHAR(50))  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `procesar_venta` (IN `cod_usuario` INT, IN `cod_cliente` INT, IN `token` VARCHAR(50))  BEGIN
 DECLARE factura INT;
 DECLARE registros INT;
 DECLARE total DECIMAL(10,2);
@@ -125,9 +125,9 @@ DELIMITER ;
 
 CREATE TABLE `cliente` (
   `idcliente` int(11) NOT NULL,
-  `dni` int(8) NOT NULL,
+  `dni` varchar(20) COLLATE utf8_spanish_ci NOT NULL,
   `nombre` varchar(100) COLLATE utf8_spanish_ci NOT NULL,
-  `telefono` int(15) NOT NULL,
+  `telefono` varchar(15) COLLATE utf8_spanish_ci NOT NULL,
   `direccion` varchar(200) COLLATE utf8_spanish_ci NOT NULL,
   `usuario_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
@@ -137,8 +137,11 @@ CREATE TABLE `cliente` (
 --
 
 INSERT INTO `cliente` (`idcliente`, `dni`, `nombre`, `telefono`, `direccion`, `usuario_id`) VALUES
-(1, 123456, 'Público en General', 0, 'S/D', 1),
-(2, 123789, 'Angel sifuentes', 925491523, 'Lima', 1);
+(1, '123456', 'Público en General', '0', 'S/D', 1),
+(2, '11', 'Angel Asencio', '1234567890', 'Calle x esquina y, Los Jardines, DN.', 1),
+(3, '40225231238', 'Jose Polanco', '8094464610', 'Calle sl Sol #14, Hatillo, San Cristobal', 1),
+(4, '0909', 'Argenis Inoa', '8091120992', 'Las Colinas, Santiago.', 1),
+(5, '99999', 'Isamar Polanco', '8292086042', 'Alejandro alnedo #8, Nagua.', 1);
 
 -- --------------------------------------------------------
 
@@ -151,7 +154,7 @@ CREATE TABLE `configuracion` (
   `dni` int(11) NOT NULL,
   `nombre` varchar(100) COLLATE utf8_spanish_ci NOT NULL,
   `razon_social` varchar(100) COLLATE utf8_spanish_ci NOT NULL,
-  `telefono` int(11) NOT NULL,
+  `telefono` varchar(15) COLLATE utf8_spanish_ci NOT NULL,
   `email` varchar(100) COLLATE utf8_spanish_ci NOT NULL,
   `direccion` text COLLATE utf8_spanish_ci NOT NULL,
   `igv` decimal(10,2) NOT NULL
@@ -162,7 +165,7 @@ CREATE TABLE `configuracion` (
 --
 
 INSERT INTO `configuracion` (`id`, `dni`, `nombre`, `razon_social`, `telefono`, `email`, `direccion`, `igv`) VALUES
-(1, 2580, 'Vida Informático', 'Vida Informático', 925491523, 'naju@vidainformatico.com', 'Lima - Perú', '1.18');
+(1, 2147483647, 'AGM Ventas', 'AGM Ventas', '8099081148', 'agmdevs@agm.devs.com', 'Sto Dog - Republica Dominicana', '1.18');
 
 -- --------------------------------------------------------
 
@@ -186,7 +189,30 @@ INSERT INTO `detallefactura` (`correlativo`, `nofactura`, `codproducto`, `cantid
 (1, 1, 1, 10, '50.00'),
 (2, 1, 2, 5, '10.00'),
 (4, 2, 1, 5, '50.00'),
-(5, 3, 4, 1, '13.00');
+(5, 3, 4, 1, '13.00'),
+(6, 4, 2, 20, '15.00'),
+(7, 5, 2, 1, '15.00'),
+(8, 6, 2, 1, '15.00'),
+(9, 7, 2, 1, '15.00'),
+(10, 8, 2, 1, '15.00'),
+(11, 9, 1, 3, '50.00'),
+(12, 10, 1, 10, '50.00'),
+(13, 10, 2, 10, '15.00'),
+(15, 11, 1, 2, '50.00'),
+(16, 12, 2, 5, '15.00'),
+(17, 13, 4, 1, '150.00'),
+(18, 13, 2, 2, '15.00'),
+(19, 13, 3, 3, '16.00'),
+(20, 13, 1, 4, '50.00'),
+(24, 14, 1, 12, '5.00'),
+(25, 14, 3, 2, '10.00'),
+(26, 14, 2, 1, '20.00'),
+(27, 14, 4, 22, '150.00'),
+(28, 15, 1, 5, '5.00'),
+(29, 16, 1, 3, '5.00'),
+(30, 17, 2, 1, '20.00'),
+(31, 18, 4, 5, '150.00'),
+(32, 18, 1, 24, '5.00');
 
 -- --------------------------------------------------------
 
@@ -217,6 +243,18 @@ CREATE TABLE `entradas` (
   `usuario_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 
+--
+-- Volcado de datos para la tabla `entradas`
+--
+
+INSERT INTO `entradas` (`correlativo`, `codproducto`, `fecha`, `cantidad`, `precio`, `usuario_id`) VALUES
+(1, 2, '2022-08-26 20:35:33', 25, '10.00', 10),
+(2, 2, '2022-08-26 21:38:33', 200, '15.00', 10),
+(3, 3, '2022-08-26 21:38:46', 25, '16.00', 10),
+(4, 4, '2022-08-26 22:43:49', 10, '13.00', 1),
+(5, 4, '2022-08-26 22:44:17', 10, '13.00', 1),
+(6, 4, '2022-08-27 18:37:23', 100, '150.00', 1);
+
 -- --------------------------------------------------------
 
 --
@@ -239,7 +277,22 @@ CREATE TABLE `factura` (
 INSERT INTO `factura` (`nofactura`, `fecha`, `usuario`, `codcliente`, `totalfactura`, `estado`) VALUES
 (1, '2021-03-09 10:20:19', 1, 1, '550.00', 1),
 (2, '2021-03-09 10:30:47', 1, 1, '250.00', 1),
-(3, '2021-03-09 10:33:05', 1, 2, '13.00', 1);
+(3, '2021-03-09 10:33:05', 1, 2, '13.00', 1),
+(4, '2022-08-26 20:37:18', 10, 1, '300.00', 1),
+(5, '2022-08-26 21:17:46', 11, 1, '15.00', 1),
+(6, '2022-08-26 21:21:15', 11, 1, '15.00', 1),
+(7, '2022-08-26 21:35:38', 11, 1, '15.00', 1),
+(8, '2022-08-26 21:37:40', 11, 1, '15.00', 1),
+(9, '2022-08-26 21:45:21', 10, 1, '150.00', 1),
+(10, '2022-08-26 21:51:38', 10, 1, '650.00', 1),
+(11, '2022-08-26 21:59:38', 1, 1, '100.00', 1),
+(12, '2022-08-26 22:21:43', 1, 3, '75.00', 1),
+(13, '2022-08-26 22:48:08', 1, 1, '428.00', 1),
+(14, '2022-08-26 22:51:45', 1, 3, '3400.00', 1),
+(15, '2022-08-27 18:35:10', 1, 4, '25.00', 1),
+(16, '2022-08-27 22:57:25', 11, 4, '15.00', 1),
+(17, '2022-08-27 23:43:38', 11, 4, '20.00', 1),
+(18, '2022-08-28 16:30:58', 1, 5, '870.00', 1);
 
 -- --------------------------------------------------------
 
@@ -262,10 +315,10 @@ CREATE TABLE `producto` (
 --
 
 INSERT INTO `producto` (`codproducto`, `codigo`, `descripcion`, `proveedor`, `precio`, `existencia`, `usuario_id`) VALUES
-(1, '12345', 'Naranja', 1, '50.00', 85, 1),
-(2, '321', 'Gaseosa', 1, '10.00', 0, 1),
-(3, '654', 'Galletas', 1, '16.00', 8, 1),
-(4, '987', 'Sandia', 1, '13.00', 3, 1);
+(1, '12345', 'Naranjas de jugo', 1, '5.00', 22, 1),
+(2, '123', 'Refresco 20oz.', 1, '20.00', 182, 1),
+(3, '1234', 'Galletas Dino', 1, '10.00', 28, 1),
+(4, '12', 'Sandia', 1, '150.00', 95, 1);
 
 -- --------------------------------------------------------
 
@@ -277,7 +330,7 @@ CREATE TABLE `proveedor` (
   `codproveedor` int(11) NOT NULL,
   `proveedor` varchar(100) COLLATE utf8_spanish_ci NOT NULL,
   `contacto` varchar(100) COLLATE utf8_spanish_ci NOT NULL,
-  `telefono` int(11) NOT NULL,
+  `telefono` varchar(15) COLLATE utf8_spanish_ci NOT NULL,
   `direccion` varchar(100) COLLATE utf8_spanish_ci NOT NULL,
   `usuario_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
@@ -287,7 +340,8 @@ CREATE TABLE `proveedor` (
 --
 
 INSERT INTO `proveedor` (`codproveedor`, `proveedor`, `contacto`, `telefono`, `direccion`, `usuario_id`) VALUES
-(1, 'Open', '123456', 925491523, 'Lima', 1);
+(1, 'Open', '123456', '8099034040', 'Santiago, RD.', 1),
+(3, 'MSI sa.', '123', '6462914563', '71 Chai Chee St, Blk 3 Level 1, Singapore 468981', 1);
 
 -- --------------------------------------------------------
 
@@ -328,9 +382,9 @@ CREATE TABLE `usuario` (
 --
 
 INSERT INTO `usuario` (`idusuario`, `nombre`, `correo`, `usuario`, `clave`, `rol`) VALUES
-(1, 'Vida Informatico', 'vida@gmail.com', 'admin', '21232f297a57a5a743894a0e4a801fc3', 1),
-(6, 'Maria Perez Miranda', 'maria@gmail.com', 'maria', '263bce650e68ab4e23f28263760b9fa5', 1),
-(9, 'angel', 'angel@gmail.com', 'angel', 'f4f068e71e0d87bf0ad51e6214ab84e9', 2);
+(1, 'Sr. Gabriel Polanco', 'gbpr@gmail.com', 'admin', 'e64b78fc3bc91bcbc7dc232ba8ec59e0', 1),
+(10, 'Armando Quito', 'arman2quito@klk.com', 'admin1', 'e64b78fc3bc91bcbc7dc232ba8ec59e0', 1),
+(11, 'Aneuri Baez', 'abaez@klk.es', 'baez', 'e10adc3949ba59abbe56e057f20f883e', 2);
 
 --
 -- Índices para tablas volcadas
@@ -404,7 +458,7 @@ ALTER TABLE `usuario`
 -- AUTO_INCREMENT de la tabla `cliente`
 --
 ALTER TABLE `cliente`
-  MODIFY `idcliente` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `idcliente` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT de la tabla `configuracion`
@@ -416,37 +470,37 @@ ALTER TABLE `configuracion`
 -- AUTO_INCREMENT de la tabla `detallefactura`
 --
 ALTER TABLE `detallefactura`
-  MODIFY `correlativo` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `correlativo` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
 
 --
 -- AUTO_INCREMENT de la tabla `detalle_temp`
 --
 ALTER TABLE `detalle_temp`
-  MODIFY `correlativo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `correlativo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
 
 --
 -- AUTO_INCREMENT de la tabla `entradas`
 --
 ALTER TABLE `entradas`
-  MODIFY `correlativo` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `correlativo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT de la tabla `factura`
 --
 ALTER TABLE `factura`
-  MODIFY `nofactura` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `nofactura` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT de la tabla `producto`
 --
 ALTER TABLE `producto`
-  MODIFY `codproducto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `codproducto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT de la tabla `proveedor`
 --
 ALTER TABLE `proveedor`
-  MODIFY `codproveedor` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `codproveedor` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de la tabla `rol`
@@ -458,7 +512,7 @@ ALTER TABLE `rol`
 -- AUTO_INCREMENT de la tabla `usuario`
 --
 ALTER TABLE `usuario`
-  MODIFY `idusuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `idusuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
