@@ -102,7 +102,7 @@ if ($result_data > 0) {
 		<nav id="sidebar">
 			<!-- Sidebar Header-->
 			<div class="sidebar-header d-flex align-items-center">
-				<div class="avatar"><img src="img/logo.PNG" alt="..." class="img-fluid rounded-circle"></div>
+				<div class="avatar"><img src="img/perfil.jpg" alt="..." class="img-fluid rounded-circle"></div>
 				<div class="title">
 					<h1 class="h5"><?php echo $_SESSION['nombre']; ?></h1>
 					<p><?php if ($_SESSION['rol'] == 1) {
