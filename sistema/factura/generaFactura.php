@@ -22,6 +22,7 @@
 		$clientes = mysqli_query($conexion, "SELECT * FROM cliente WHERE idcliente = $codCliente");
 		$result_cliente = mysqli_fetch_assoc($clientes);
 		$productos = mysqli_query($conexion, "SELECT d.nofactura, d.codproducto, d.cantidad, p.codproducto, p.descripcion, p.precio FROM detallefactura d INNER JOIN producto p ON d.nofactura = $noFactura WHERE d.codproducto = p.codproducto");
+		$fecha = $result_venta['fecha']." ".$result_venta['hora'];
 		require_once 'fpdf/fpdf.php';
 		$pdf = new FPDF('P', 'mm', array(80, 200));
 		$pdf->AddPage();
@@ -53,11 +54,11 @@
 		$pdf->SetFont('Arial', 'B', 7);
 		$pdf->Cell(15, 5, "Num ticked: ", 0, 0, 'L');
 		$pdf->SetFont('Arial', '', 7);
-		$pdf->Cell(20, 5, $noFactura, 0, 0, 'L');
+		$pdf->Cell(15, 5, $noFactura, 0, 0, 'L');
 		$pdf->SetFont('Arial', 'B', 7);
-		$pdf->Cell(16, 5, "Fecha: ", 0, 0, 'R');
+		$pdf->Cell(20, 5, "Fecha: ", 0, 0, 'R');
 		$pdf->SetFont('Arial', '', 7);
-		$pdf->Cell(25, 5, $result_venta['fecha'], 0, 1, 'R');
+		$pdf->Cell(23, 5, $fecha, 0, 1, 'R',);
 		// Salto de línea 
 		$pdf->Ln();
 		$pdf->SetFont('Arial', 'B', 8);

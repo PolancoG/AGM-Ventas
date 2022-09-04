@@ -1,11 +1,11 @@
 <?php include_once "includes/header.php"; ?>
-
 <!-- Begin Page Content -->
 <div class="container-fluid">
 
 	<!-- Page Heading -->
 	<div class="d-sm-flex align-items-center justify-content-between mb-4">
-		<h1 class="h3 mb-0 text-gray-800">Panel de Administración</h1>
+		<h1 class="h3 mb-0 text-gray-800">VENTAS</h1>
+		<a href="./reporteVentas.php" id="report_btn_sucursal" class="btn btn-primary" target="_blank"><li class="fa fa-plus"></li> Reporte</a>
 	</div>
 	<div class="row">
 		<div class="col-lg-12">
@@ -22,7 +22,7 @@
 					<tbody>
 						<?php
 						require "../conexion.php";
-						$query = mysqli_query($conexion, "SELECT nofactura, fecha,codcliente, totalfactura, estado FROM factura ORDER BY nofactura DESC");
+						$query = mysqli_query($conexion, "SELECT nofactura, fecha, hora, codcliente, totalfactura, estado FROM factura ORDER BY nofactura DESC");
 						mysqli_close($conexion);
 						$cli = mysqli_num_rows($query);
 
@@ -31,7 +31,7 @@
 						?>
 								<tr>
 									<td><?php echo $dato['nofactura']; ?></td>
-									<td><?php echo $dato['fecha']; ?></td>
+									<td><?php echo $dato['fecha'],' ',$dato['hora']; ?></td>
 									<td><?php echo $dato['totalfactura']; ?></td>
 									<td>
 										<button type="button" class="btn btn-primary view_factura" cl="<?php echo $dato['codcliente'];  ?>" f="<?php echo $dato['nofactura']; ?>">Ver</button>
@@ -44,10 +44,6 @@
 			</div>
 		</div>
 	</div>
-
-
-
 </div>
 <!-- /.container-fluid -->
-
 <?php include_once "includes/footer.php"; ?>

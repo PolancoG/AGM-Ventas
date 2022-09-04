@@ -13,12 +13,17 @@ $emailEmpresa = '';
 $telEmpresa = '';
 $dirEmpresa = '';
 
-//$sql = ("SELECT SUM(totalfactura) AS total FROM factura WHERE fecha = CAST(NOW() AS DATETIME);");
-$sql = "SELECT SUM(totalfactura) AS total FROM factura";
+//Total vendido por hoy
+$sql = "SELECT SUM(totalfactura) AS total FROM factura WHERE fecha = CURDATE();";
 $resultado = $conexion->query($sql);  
 $row = $resultado->fetch_object();
 $totalventas = $row->total;
-//
+
+//total de ventas por hoy
+$sql1 = "SELECT COUNT(nofactura) AS ventahoy FROM factura WHERE fecha = CURDATE();";
+$resultado1 = $conexion->query($sql1);  
+$rows = $resultado1->fetch_object();
+$vendido = $rows->ventahoy;
 
 $query_empresa = mysqli_query($conexion, "SELECT * FROM configuracion");
 $row_empresa = mysqli_num_rows($query_empresa);
